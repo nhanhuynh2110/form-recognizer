@@ -1,0 +1,35 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+enum AnalyzeStatus {
+  Inprogress
+  Compeleted
+  Error
+  Retry
+}
+
+model AnalyzeOp {
+  id          Int           @id @default(autoincrement())
+  modelId     String
+  resultId    String
+  status      AnalyzeStatus
+  createdDate DateTime
+  expiredDate DateTime
+  retryCount  Int           @default(0)
+  lastRetry   DateTime?
+
+  @@unique([modelId, resultId])
+  @@index([createdDate])
+  @@index([expiredDate])
+  @@index([lastRetry])
+}
